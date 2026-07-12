@@ -18,6 +18,11 @@ Route::get('/', function () {
     return Inertia::render('HomePage');
 });
 
+Route::get('/booking', function () {
+    return Inertia::render('BookingPage');
+});
+
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
