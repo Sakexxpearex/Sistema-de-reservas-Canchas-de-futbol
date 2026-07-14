@@ -19,7 +19,7 @@ class Reserva extends Model
         'codigo',
     ];
 
-    protected $casts = [
+    protected $casts = [ 
         'fecha' => 'date',
         'hora_inicio' => 'string',
         'hora_fin' => 'string',
