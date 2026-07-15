@@ -20,4 +20,6 @@ class Cancha extends Model
     {
         return $this->hasMany(Reserva::class);
     }
+
+    
 }
