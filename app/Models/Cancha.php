@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -10,30 +11,43 @@ class Cancha extends Model
     protected $fillable = [
         'nombre',
         'tipo',
+        'location',
+        'surface',
+        'capacity',
+        'lighting',
+        'covered',
+        'premium',
+        'parking',
         'precio_hora',
         'hora_apertura',
         'hora_cierre',
         'activa',
     ];
 
+    protected $casts = [
+        'lighting' => 'boolean',
+        'covered' => 'boolean',
+        'premium' => 'boolean',
+        'parking' => 'boolean',
+        'activa' => 'boolean',
+    ];
+
     public function reservas(): HasMany
     {
         return $this->hasMany(Reserva::class);
-
     }
 
-
-    
     public function generarBloques(Carbon $fecha): array
     {
-        $horaApertura = 9;   // 09:00
-        $horaCierre = 23;    // 23:00
         $duracionBloqueHoras = 1;
+
+        [$horaAperturaH, $horaAperturaM] = explode(':', $this->hora_apertura);
+        [$horaCierreH, $horaCierreM] = explode(':', $this->hora_cierre);
 
         $bloques = [];
 
-        $cursor = $fecha->copy()->setTime($horaApertura, 0);
-        $limite = $fecha->copy()->setTime($horaCierre, 0);
+        $cursor = $fecha->copy()->setTime((int) $horaAperturaH, (int) $horaAperturaM);
+        $limite = $fecha->copy()->setTime((int) $horaCierreH, (int) $horaCierreM);
 
         while ($cursor->lt($limite)) {
             $finBloque = $cursor->copy()->addHours($duracionBloqueHoras);
@@ -48,5 +62,4 @@ class Cancha extends Model
 
         return $bloques;
     }
-    
 }
