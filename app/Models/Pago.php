@@ -10,13 +10,8 @@ class Pago extends Model
     protected $fillable = [
         'reserva_id',
         'monto',
-        'metodo_pago',
-        'estado_pago',
-        'fecha_pago',
-    ];
-
-    protected $casts = [
-        'fecha_pago' => 'datetime',
+        'metodo',
+        'estado',
     ];
 
     public function reserva(): BelongsTo

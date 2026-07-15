@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CanchaController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,6 +24,9 @@ Route::get('/booking', function () {
 });
 
 
+Route::get('/', [CanchaController::class, 'index'])->name('canchas.index');
+Route::get('/canchas/{fecha?}', [CanchaController::class, 'index'])->name('canchas.fecha');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -32,5 +36,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
 
 require __DIR__.'/auth.php';
