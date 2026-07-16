@@ -8,7 +8,7 @@ interface DateSelectorProps {
   onSelect: (date: Date) => void;
 }
 
-const TODAY = new Date(2026, 6, 9);
+const TODAY = new Date();
 
 export function DateSelector({ dates, selectedDate, onSelect }: DateSelectorProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -16,7 +16,7 @@ export function DateSelector({ dates, selectedDate, onSelect }: DateSelectorProp
   return (
     <div
       ref={scrollRef}
-      className="flex gap-2.5 overflow-x-auto pb-2"
+      className="flex gap-2.5 overflow-x-auto pt-3 pb-3 px-1"
       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
     >
         {dates.map((date) => {
