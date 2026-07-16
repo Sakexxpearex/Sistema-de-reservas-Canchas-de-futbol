@@ -48,7 +48,7 @@ class CanchaService
 
             return [
                 'id' => $cancha->id . '-' . $bloque['inicio'],
-                'time' => $bloque['inicio'],
+                'time' => $bloque['inicio'] . ' - ' . $bloque['fin'],
                 'price' => (float) $cancha->precio_hora,
                 'status' => $ocupado ? 'occupied' : 'available',
             ];
