@@ -19,7 +19,7 @@ export function CourtCard({ court, selectedSlot, onSlotSelect }: CourtCardProps)
       transition={{ duration: 0.4 }}
       className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm hover:shadow-xl hover:shadow-slate-200/60 transition-shadow overflow-hidden"
     >
-      <div className="relative h-80 bg-green-950 overflow-hidden">
+      <div className="relative h-60 md:h-80 bg-green-950 overflow-hidden">
         <img
           src="/images/courtPhoto.webp" 
           alt="Cancha"
@@ -45,7 +45,7 @@ export function CourtCard({ court, selectedSlot, onSlotSelect }: CourtCardProps)
               {availableCount} de {court.slots.length}
             </p>
           </div>
-          <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
             {court.slots.map((slot) => (
               <TimeSlotChip
                 key={slot.id}
