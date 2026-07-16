@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 
 export function HeroSection() {
   return (
-    <section className="relative h-[420px] bg-green-950 overflow-hidden">
+    <section className="relative h-[380px] md:h-[420px] bg-green-950 overflow-hidden">
       <img
         src="/images/hero.webp" 
         alt="Cancha de fútbol 7 con césped sintético"
