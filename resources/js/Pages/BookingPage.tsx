@@ -2,7 +2,6 @@ import { ConfirmationStep } from "@/Components/BookingPage/ConfirmationStep";
 import { FormStep } from "@/Components/BookingPage/FormStep";
 import { PaymentStep } from "@/Components/BookingPage/PaymentStep";
 import { SummaryStep } from "@/Components/BookingPage/SummaryStep";
-import { COURTS } from "@/data/courts";
 import { BookingState, FormValues, PayMethod } from "@/types";
 import { router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
@@ -22,10 +21,8 @@ export default function BookingPage() {
   useEffect(() => {
     const raw = sessionStorage.getItem("booking");
     if (!raw) { router.get("/"); return; }
-    const { courtId, date, slotId } = JSON.parse(raw);
-    const court = COURTS.find(c => c.id === courtId) ?? null;
-    const slot = court?.slots.find(s => s.id === slotId) ?? null;
-    setBooking({ court, date: date ? new Date(date) : null, slot });
+    const { court, date, slot } = JSON.parse(raw);
+    setBooking({ court: court ?? null, date: date ? new Date(date) : null, slot: slot ?? null });
   }, []);
 
   function handleFormSubmit(e: React.FormEvent) {
