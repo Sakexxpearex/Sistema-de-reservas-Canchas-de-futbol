@@ -20,8 +20,9 @@ Route::get('/booking', function () {
     return Inertia::render('BookingPage');
 });
 
-
-
+Route::get('/admin', function () {
+    return Inertia::render('AdminPage');    
+});
 
 //Canchas
 Route::get('/', [CanchaController::class, 'index'])->name('canchas.index');
