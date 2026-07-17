@@ -1,5 +1,7 @@
 <?php
 
+
+use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CanchaController;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +20,16 @@ Route::get('/booking', function () {
     return Inertia::render('BookingPage');
 });
 
+
+
+
+//Canchas
 Route::get('/', [CanchaController::class, 'index'])->name('canchas.index');
 Route::get('/canchas/{fecha?}', [CanchaController::class, 'index'])->name('canchas.fecha');
+
+//Reservas
+Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cancha_id')->constrained('canchas')->onDelete('cascade');
             $table->string('cliente_nombre');
+            $table->string('cliente_email');        
             $table->string('cliente_telefono');
             $table->date('fecha');
             $table->time('hora_inicio');
@@ -22,7 +23,7 @@ return new class extends Migration
 
             $table->unique(['cancha_id', 'fecha', 'hora_inicio']);
         });
-    }
+        }
 
     public function down(): void
     {

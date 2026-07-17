@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Cancha;
+use App\Models\Reserva;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -17,6 +18,20 @@ class CanchaService
             }])
             ->get()
             ->map(fn ($cancha) => $this->formatearCancha($cancha, $fecha));
+    }
+
+    public function slotDisponible(int $canchaId, string $fecha, string $horaInicio): bool
+    {
+        return ! Reserva::where('cancha_id', $canchaId)
+            ->whereDate('fecha', $fecha)
+            ->where('hora_inicio', $horaInicio . ':00')
+            ->where('estado', '!=', 'cancelada')
+            ->exists();
+    }
+
+    public function calcularHoraFin(string $horaInicio): string
+    {
+        return Carbon::parse($horaInicio)->addHour()->format('H:i');
     }
 
     private function formatearCancha(Cancha $cancha, Carbon $fecha): array
@@ -48,7 +63,7 @@ class CanchaService
 
             return [
                 'id' => $cancha->id . '-' . $bloque['inicio'],
-                'time' => $bloque['inicio'] . ' - ' . $bloque['fin'],
+                'time' => $bloque['inicio'],
                 'price' => (float) $cancha->precio_hora,
                 'status' => $ocupado ? 'occupied' : 'available',
             ];

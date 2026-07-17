@@ -8,16 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Reserva extends Model
 {
-    protected $fillable = [
-        'cancha_id',
-        'cliente_nombre',
-        'cliente_telefono',
-        'fecha',
-        'hora_inicio',
-        'hora_fin',
-        'estado',
-        'codigo',
-    ];
+protected $fillable = [
+    'cancha_id',
+    'cliente_nombre',
+    'cliente_email',        
+    'cliente_telefono',
+    'fecha',
+    'hora_inicio',
+    'hora_fin',
+    'estado',
+    'codigo',
+];
 
     protected $casts = [
         'fecha' => 'date',

@@ -32,11 +32,27 @@ export default function BookingPage() {
 
   function handlePay() {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      sessionStorage.removeItem("booking");
-      setStep("confirmed");
-    }, 2500);
+
+    router.post("/reservas", {
+      cancha_id: booking.court?.id,
+      fecha: booking.date?.toISOString().split("T")[0], // "YYYY-MM-DD"
+      hora_inicio: booking.slot?.time,                    // "20:00"
+      cliente_nombre: formValues.name,
+      cliente_email: formValues.email,
+      cliente_telefono: formValues.phone,
+    }, {
+      onSuccess: () => {
+        sessionStorage.removeItem("booking");
+        setStep("confirmed");
+      },
+      onError: (errors) => {
+        setLoading(false);
+        alert(errors.hora_inicio ?? "No se pudo procesar la reserva. Intenta de nuevo.");
+      },
+      onFinish: () => {
+        setLoading(false);
+      },
+    });
   }
 
   function handleReset() {
