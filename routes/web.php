@@ -21,9 +21,7 @@ Route::get('/booking', function () {
     return Inertia::render('BookingPage');
 });
 
-Route::get('/admin', function () {
-    return Inertia::render('AdminPage');    
-});
+Route::get('/admin', [AdminController::class, 'reservas'])->name('admin.index');
 
 //Canchas
 Route::get('/', [CanchaController::class, 'index'])->name('canchas.index');
@@ -33,9 +31,6 @@ Route::get('/canchas/{fecha?}', [CanchaController::class, 'index'])->name('canch
 Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
 
 //Admin
-Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
-
-
 Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
 
 Route::get('/dashboard', function () {

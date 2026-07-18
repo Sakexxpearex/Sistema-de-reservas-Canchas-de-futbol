@@ -3,14 +3,29 @@ import { AdminHeader } from "@/Components/AdminPage/AdminHeader";
 import { StatsGrid } from "@/Components/AdminPage/StatsGrid";
 import { FiltersBar } from "@/Components/AdminPage/FiltersBar";
 import { Reservation, ReservationStatus } from "@/types";
-import { fmtPrice } from "@/data/courts";
+import { fmtPrice, fmtDate } from "@/data/courts";
 import { ReservationTable } from "@/Components/AdminPage/ReservationTable";
 import { ReservationCards } from "@/Components/AdminPage/ReservationCards";
-import { MOCK_RESERVATIONS } from "@/data/mockReservations";
 
+interface AdminPageProps {
+  reservas: Reservation[];
+}
 
-export default function AdminPage() {
-  const [reservations, setReservations] = useState<Reservation[]>(MOCK_RESERVATIONS);
+function parseISODate(iso: string): Date {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatReservas(reservas: Reservation[]): Reservation[] {
+  return (reservas ?? []).map(r => ({ ...r, date: fmtDate(parseISODate(r.date)) }));
+}
+
+export default function AdminPage({ reservas }: AdminPageProps) {
+  const [reservations, setReservations] = useState<Reservation[]>(() => formatReservas(reservas));
+
+  useEffect(() => {
+    setReservations(formatReservas(reservas));
+  }, [reservas]);
   const [search, setSearch] = useState("");
   const [courtFilter, setCourtFilter] = useState("Todas");
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | "all">("all");
@@ -37,8 +52,9 @@ export default function AdminPage() {
 
   const stats = useMemo(() => {
     const confirmed = reservations.filter(r => r.status === "confirmed");
+    const today = fmtDate(new Date());
     return {
-      todayCount:       reservations.filter(r => r.date === "JUE, 9 de Julio 2026").length,
+      todayCount:       reservations.filter(r => r.date === today).length,
       confirmedRevenue: fmtPrice(confirmed.reduce((s, r) => s + r.price, 0)),
       pendingCount:     reservations.filter(r => r.status === "pending").length,
       confirmedCount:   confirmed.length,

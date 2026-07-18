@@ -8,29 +8,34 @@ use Inertia\Inertia;
 
 class AdminController extends Controller
 {
+    private const ESTADO_A_STATUS = [
+        'pendiente' => 'pending',
+        'confirmada' => 'confirmed',
+        'cancelada' => 'cancelled',
+    ];
+
     public function reservas(string $fecha = null)
     {
-        $fecha = $fecha ? Carbon::parse($fecha) : Carbon::today();
-
         $reservas = Reserva::with('cancha')
-            ->whereDate('fecha', $fecha)
+            ->when($fecha, fn ($query) => $query->whereDate('fecha', Carbon::parse($fecha)))
+            ->orderByDesc('fecha')
             ->orderBy('hora_inicio')
             ->get()
             ->map(function ($reserva) {
                 return [
-                    'id' => $reserva->id,
-                    'codigo' => $reserva->codigo,
-                    'cancha' => $reserva->cancha->nombre,
-                    'cliente_nombre' => $reserva->cliente_nombre,
-                    'cliente_telefono' => $reserva->cliente_telefono,
-                    'hora_inicio' => substr($reserva->hora_inicio, 0, 5),
-                    'hora_fin' => substr($reserva->hora_fin, 0, 5),
-                    'estado' => $reserva->estado,
+                    'id' => $reserva->codigo,
+                    'court' => $reserva->cancha->nombre,
+                    'date' => $reserva->fecha->format('Y-m-d'),
+                    'time' => substr($reserva->hora_inicio, 0, 5) . ' - ' . substr($reserva->hora_fin, 0, 5),
+                    'customer' => $reserva->cliente_nombre,
+                    'email' => $reserva->cliente_email,
+                    'phone' => $reserva->cliente_telefono,
+                    'price' => (float) $reserva->cancha->precio_hora,
+                    'status' => self::ESTADO_A_STATUS[$reserva->estado] ?? 'pending',
                 ];
             });
 
-        return Inertia::render('Admin/Reservas', [
-            'fecha' => $fecha->format('Y-m-d'),
+        return Inertia::render('AdminPage', [
             'reservas' => $reservas,
         ]);
     }
