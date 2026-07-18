@@ -19,7 +19,7 @@ protected $fillable = [
     'estado',
     'codigo',
 ];
-
+//hola
     protected $casts = [
         'fecha' => 'date',
         'hora_inicio' => 'string',
