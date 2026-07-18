@@ -1,7 +1,7 @@
 import { ReservationStatus } from "@/types";
 import { Search } from "lucide-react";
 
-const COURTS = ["Todas", "Cancha 1", "Cancha 2", "Cancha 3"];
+const COURTS = ["Todas", "Cancha 1", "Cancha 2"];
 
 interface FiltersBarProps {
   search: string;
