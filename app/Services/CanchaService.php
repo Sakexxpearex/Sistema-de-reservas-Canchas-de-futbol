@@ -53,7 +53,7 @@ class CanchaService
         ];
     }
 
-    private function calcularSlots(Cancha $cancha, array $bloques): Collection
+        private function calcularSlots(Cancha $cancha, array $bloques): Collection
     {
         return collect($bloques)->map(function ($bloque) use ($cancha) {
             $ocupado = $cancha->reservas->contains(function ($reserva) use ($bloque) {
@@ -63,7 +63,7 @@ class CanchaService
 
             return [
                 'id' => $cancha->id . '-' . $bloque['inicio'],
-                'time' => $bloque['inicio'],
+                'time' => $bloque['inicio'] . ' - ' . $bloque['fin'],
                 'price' => (float) $cancha->precio_hora,
                 'status' => $ocupado ? 'occupied' : 'available',
             ];

@@ -36,7 +36,7 @@ export default function BookingPage() {
     router.post("/reservas", {
       cancha_id: booking.court?.id,
       fecha: booking.date?.toISOString().split("T")[0], // "YYYY-MM-DD"
-      hora_inicio: booking.slot?.time,                    // "20:00"
+      hora_inicio: booking.slot?.time?.split(" - ")[0],   // "20:00"
       cliente_nombre: formValues.name,
       cliente_email: formValues.email,
       cliente_telefono: formValues.phone,

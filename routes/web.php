@@ -35,6 +35,9 @@ Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.st
 //Admin
 Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
 
+
+Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
