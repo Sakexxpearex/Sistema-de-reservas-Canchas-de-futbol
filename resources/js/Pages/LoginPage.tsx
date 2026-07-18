@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { motion } from "motion/react";
 import { router } from "@inertiajs/react";
 import { LoginBrand } from "@/Components/LoginPage/LoginBrand";
@@ -6,9 +5,6 @@ import { LoginForm } from "@/Components/LoginPage/LoginForm";
 
 export default function LoginPage() {
 
-  useEffect(() => {
-    if (sessionStorage.getItem("auth") === "1") router.get("/admin");
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4">
