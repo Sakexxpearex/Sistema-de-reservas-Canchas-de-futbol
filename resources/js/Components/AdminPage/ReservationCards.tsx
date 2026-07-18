@@ -7,10 +7,9 @@ import { fmtPrice } from "@/data/courts";
 
 interface ReservationCardsProps {
   rows: Reservation[];
-  onToggle: (id: string) => void;
 }
 
-export function ReservationCards({ rows, onToggle }: ReservationCardsProps) {
+export function ReservationCards({ rows }: ReservationCardsProps) {
   if (rows.length === 0) {
     return (
       <div className="py-16 flex flex-col items-center gap-2">
@@ -51,12 +50,6 @@ export function ReservationCards({ rows, onToggle }: ReservationCardsProps) {
           </div>
           <div className="flex items-center justify-between">
             <span className="font-black text-[#0F172A]">{fmtPrice(r.price)}</span>
-            <button
-              onClick={() => onToggle(r.id)}
-              className="text-xs font-bold text-[#16A34A] hover:underline"
-            >
-              Cambiar estado
-            </button>
           </div>
         </motion.div>
       ))}
