@@ -6,12 +6,11 @@ import { fmtPrice } from "@/data/courts";
 
 interface ReservationTableProps {
   rows: Reservation[];
-  onToggle: (id: string) => void;
 }
 
-const COLS = ["ID", "Cliente", "Cancha", "Fecha", "Horario", "Total", "Estado", "Acción"];
+const COLS = ["ID", "Cliente", "Cancha", "Fecha", "Horario", "Total", "Estado"];
 
-export function ReservationTable({ rows, onToggle }: ReservationTableProps) {
+export function ReservationTable({ rows }: ReservationTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -41,19 +40,11 @@ export function ReservationTable({ rows, onToggle }: ReservationTableProps) {
               <td className="px-5 py-4 text-sm text-[#64748B]">{r.time}</td>
               <td className="px-5 py-4 text-sm font-black text-[#0F172A]">{fmtPrice(r.price)}</td>
               <td className="px-5 py-4"><StatusBadge status={r.status} /></td>
-              <td className="px-5 py-4">
-                <button
-                  onClick={() => onToggle(r.id)}
-                  className="text-xs font-bold text-[#16A34A] hover:text-[#15803D] hover:underline transition-colors"
-                >
-                  Cambiar
-                </button>
-              </td>
             </motion.tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan={8} className="px-5 py-16 text-center">
+              <td colSpan={7} className="px-5 py-16 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <Users size={32} className="text-[#E2E8F0]" />
                   <p className="text-[#94A3B8] font-medium text-sm">No se encontraron reservas</p>
