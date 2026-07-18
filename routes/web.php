@@ -4,6 +4,7 @@
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CanchaController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -31,6 +32,8 @@ Route::get('/canchas/{fecha?}', [CanchaController::class, 'index'])->name('canch
 //Reservas
 Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
 
+//Admin
+Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
