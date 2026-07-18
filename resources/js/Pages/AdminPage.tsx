@@ -61,14 +61,6 @@ export default function AdminPage({ reservas }: AdminPageProps) {
     };
   }, [reservations]);
 
-  function toggleStatus(id: string) {
-    setReservations(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const next: ReservationStatus = r.status === "confirmed" ? "cancelled"
-        : r.status === "pending" ? "confirmed" : "confirmed";
-      return { ...r, status: next };
-    }));
-  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -93,10 +85,10 @@ export default function AdminPage({ reservas }: AdminPageProps) {
           />
 
           <div className="hidden lg:block">
-            <ReservationTable rows={paginated} onToggle={toggleStatus} />
+            <ReservationTable rows={paginated} />
           </div>
           <div className="lg:hidden">
-            <ReservationCards rows={paginated} onToggle={toggleStatus} />
+            <ReservationCards rows={paginated} />
           </div>
 
           <div className="px-5 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex flex-col sm:flex-row items-center justify-between gap-4">
