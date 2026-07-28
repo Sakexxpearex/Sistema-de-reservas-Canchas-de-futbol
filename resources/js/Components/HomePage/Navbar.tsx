@@ -4,10 +4,9 @@ import { ArrowLeft } from "lucide-react";
 interface NavbarProps {
   onBack?: () => void;
   backLabel?: string;
-  onGoAdmin?: () => void;
 }
 
-export function Navbar({ onBack, backLabel, onGoAdmin }: NavbarProps) {
+export function Navbar({ onBack, backLabel }: NavbarProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-[72px] bg-white/80 backdrop-blur-xl border-b border-[#E2E8F0]/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
@@ -31,15 +30,6 @@ export function Navbar({ onBack, backLabel, onGoAdmin }: NavbarProps) {
             </span>
           </div>
         </div>
-
-        {onGoAdmin && (
-          <button
-            onClick={onGoAdmin}
-            className="text-xs font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors px-3 py-1.5 rounded-lg hover:bg-[#F1F5F9] border border-transparent hover:border-[#E2E8F0]"
-          >
-            Admin
-          </button>
-        )}
       </div>
     </header>
   );

@@ -11,6 +11,10 @@ export type PageProps<
     auth: {
         user: User;
     };
+    flash: {
+        reserva_codigo: string | null;
+        reserva_correo_enviado: boolean | null;
+    };
 };
 
 export type Step = "browse" | "form" | "summary" | "payment" | "confirmed";

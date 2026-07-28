@@ -43,7 +43,7 @@ export default function HomePage({ courts, fecha }: HomePageProps) {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <Navbar onGoAdmin={() => router.get("/login")} />
+      <Navbar />
 
       <div className="pt-[72px]">
         <HeroSection />

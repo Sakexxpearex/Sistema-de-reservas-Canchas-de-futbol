@@ -10,12 +10,12 @@ import { StepProgress } from "./StepProgress";
 interface ConfirmationStepProps {
   booking: BookingState;
   formValues: FormValues;
+  codigo: string;
+  correoEnviado: boolean;
   onReset: () => void;
 }
 
-export function ConfirmationStep({ booking, formValues, onReset }: ConfirmationStepProps) {
-  const confirmationCode = `FC-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
+export function ConfirmationStep({ booking, formValues, codigo, correoEnviado, onReset }: ConfirmationStepProps) {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
@@ -43,10 +43,17 @@ export function ConfirmationStep({ booking, formValues, onReset }: ConfirmationS
 
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
                 <h2 className="text-3xl font-black text-[#0F172A] mb-2">¡Reserva confirmada!</h2>
-                <p className="text-[#64748B] text-sm leading-relaxed">
-                  Hemos enviado los detalles a<br />
-                  <span className="font-semibold text-[#0F172A]">{formValues.email}</span>
-                </p>
+                {correoEnviado ? (
+                  <p className="text-[#64748B] text-sm leading-relaxed">
+                    Hemos enviado los detalles a<br />
+                    <span className="font-semibold text-[#0F172A]">{formValues.email}</span>
+                  </p>
+                ) : (
+                  <p className="text-[#B45309] text-sm leading-relaxed">
+                    No pudimos enviarte el correo de confirmación.<br />
+                    <span className="font-semibold">Guarda tu código de reserva.</span>
+                  </p>
+                )}
               </motion.div>
 
               <motion.div
@@ -56,7 +63,7 @@ export function ConfirmationStep({ booking, formValues, onReset }: ConfirmationS
                 className="mt-5 bg-white/80 rounded-xl px-6 py-3 border border-[#BBF7D0]"
               >
                 <p className="text-[10px] font-black text-[#64748B] uppercase tracking-widest mb-0.5">Código de reserva</p>
-                <p className="text-xl font-black text-[#16A34A] tracking-wider">{confirmationCode}</p>
+                <p className="text-xl font-black text-[#16A34A] tracking-wider">{codigo || "—"}</p>
               </motion.div>
             </div>
 

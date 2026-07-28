@@ -1,13 +1,18 @@
 import { motion } from "motion/react";
-import { router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { LoginBrand } from "@/Components/LoginPage/LoginBrand";
 import { LoginForm } from "@/Components/LoginPage/LoginForm";
 
-export default function LoginPage() {
+interface LoginPageProps {
+  canResetPassword?: boolean;
+  status?: string;
+}
 
-
+export default function LoginPage({ canResetPassword, status }: LoginPageProps) {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center px-4">
+      <Head title="Iniciar sesión" />
+
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-32 -right-32 w-96 h-96 bg-[#16A34A]/6 rounded-full blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-[#16A34A]/4 rounded-full blur-3xl" />
@@ -26,7 +31,14 @@ export default function LoginPage() {
             <h2 className="text-xl font-extrabold text-[#0F172A]">Bienvenido de vuelta</h2>
             <p className="text-[#64748B] text-sm mt-1">Ingresa tus credenciales para continuar</p>
           </div>
-          <LoginForm onSuccess={() => router.get("/admin")} />
+
+          {status && (
+            <div className="mb-4 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm font-medium text-[#15803D]">
+              {status}
+            </div>
+          )}
+
+          <LoginForm canResetPassword={canResetPassword} />
         </div>
 
         <p className="text-center text-xs text-[#94A3B8] mt-6">

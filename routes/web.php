@@ -21,7 +21,6 @@ Route::get('/booking', function () {
     return Inertia::render('BookingPage');
 });
 
-Route::get('/admin', [AdminController::class, 'reservas'])->name('admin.index');
 
 //Canchas
 Route::get('/', [CanchaController::class, 'index'])->name('canchas.index');
@@ -31,10 +30,15 @@ Route::get('/canchas/{fecha?}', [CanchaController::class, 'index'])->name('canch
 Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.store');
 
 //Admin
-Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
+});
 
+// Este proyecto no usa el panel genérico de Breeze: el destino tras autenticarse
+// es el panel de reservas. Se conserva el nombre 'dashboard' porque el middleware
+// 'guest' y los controladores de Breeze lo resuelven por nombre.
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('admin.reservas');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

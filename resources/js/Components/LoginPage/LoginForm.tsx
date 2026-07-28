@@ -1,48 +1,46 @@
 import { useState } from "react";
 import { motion } from "motion/react";
+import { Link, useForm } from "@inertiajs/react";
 import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight } from "lucide-react";
 
 interface LoginFormProps {
-  onSuccess: () => void;
+  canResetPassword?: boolean;
 }
-
-const CREDENTIALS = { email: "admin@futcanchas.com", password: "admin123" };
 
 const INPUT_CLS =
   "w-full pl-10 pr-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] text-sm placeholder:text-[#CBD5E1] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-all";
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export function LoginForm({ canResetPassword = false }: LoginFormProps) {
+  const { data, setData, post, processing, errors, clearErrors, reset } = useForm({
+    email: "",
+    password: "",
+    remember: false,
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const error = errors.email ?? errors.password;
+
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-    await new Promise(r => setTimeout(r, 900));
-    if (email === CREDENTIALS.email && password === CREDENTIALS.password) {
-      sessionStorage.setItem("auth", "1");
-      onSuccess();
-    } else {
-      setError("Correo o contraseña incorrectos.");
-    }
-    setLoading(false);
+    post("/login", {
+      onFinish: () => reset("password"),
+    });
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-semibold text-[#0F172A] mb-1.5">Correo electrónico</label>
+        <label htmlFor="email" className="block text-sm font-semibold text-[#0F172A] mb-1.5">Correo electrónico</label>
         <div className="relative">
           <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
           <input
+            id="email"
+            name="email"
             type="email"
+            autoComplete="username"
             placeholder="admin@futcanchas.com"
-            value={email}
-            onChange={e => { setEmail(e.target.value); setError(""); }}
+            value={data.email}
+            onChange={e => { setData("email", e.target.value); clearErrors(); }}
             className={INPUT_CLS}
             required
           />
@@ -51,18 +49,26 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="text-sm font-semibold text-[#0F172A]">Contraseña</label>
-          <button type="button" className="text-xs text-[#16A34A] hover:text-[#15803D] font-medium transition-colors">
-            ¿Olvidaste tu contraseña?
-          </button>
+          <label htmlFor="password" className="text-sm font-semibold text-[#0F172A]">Contraseña</label>
+          {canResetPassword && (
+            <Link
+              href="/forgot-password"
+              className="text-xs text-[#16A34A] hover:text-[#15803D] font-medium transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          )}
         </div>
         <div className="relative">
           <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
           <input
+            id="password"
+            name="password"
             type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
             placeholder="••••••••"
-            value={password}
-            onChange={e => { setPassword(e.target.value); setError(""); }}
+            value={data.password}
+            onChange={e => { setData("password", e.target.value); clearErrors(); }}
             className={INPUT_CLS + " pr-11"}
             required
           />
@@ -76,6 +82,17 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
       </div>
 
+      <label className="flex items-center gap-2 text-sm text-[#64748B] select-none cursor-pointer">
+        <input
+          type="checkbox"
+          name="remember"
+          checked={data.remember}
+          onChange={e => setData("remember", e.target.checked)}
+          className="w-4 h-4 rounded border-[#E2E8F0] text-[#16A34A] focus:ring-[#16A34A]/20"
+        />
+        Mantener sesión iniciada
+      </label>
+
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -88,13 +105,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       )}
 
       <motion.button
-        whileHover={!loading ? { scale: 1.02 } : {}}
-        whileTap={!loading ? { scale: 0.98 } : {}}
+        whileHover={!processing ? { scale: 1.02 } : {}}
+        whileTap={!processing ? { scale: 0.98 } : {}}
         type="submit"
-        disabled={loading || !email || !password}
+        disabled={processing || !data.email || !data.password}
         className="w-full py-3.5 bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-green-500/25 text-sm mt-2"
       >
-        {loading ? (
+        {processing ? (
           <>
             <motion.div
               animate={{ rotate: 360 }}
@@ -107,17 +124,6 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           <>Ingresar <ArrowRight size={15} /></>
         )}
       </motion.button>
-
-      <p className="text-center text-xs text-[#94A3B8] pt-1">
-        Credenciales de prueba:{" "}
-        <button
-          type="button"
-          onClick={() => { setEmail(CREDENTIALS.email); setPassword(CREDENTIALS.password); setError(""); }}
-          className="text-[#16A34A] font-semibold hover:underline"
-        >
-          autocompletar
-        </button>
-      </p>
     </form>
   );
 }

@@ -2,12 +2,17 @@ import { ConfirmationStep } from "@/Components/BookingPage/ConfirmationStep";
 import { FormStep } from "@/Components/BookingPage/FormStep";
 import { PaymentStep } from "@/Components/BookingPage/PaymentStep";
 import { SummaryStep } from "@/Components/BookingPage/SummaryStep";
-import { BookingState, FormValues, PayMethod } from "@/types";
+import { BookingState, FormValues, PageProps, PayMethod } from "@/types";
 import { router } from "@inertiajs/react";
 import { useState, useEffect } from "react";
 
 
 type FlowStep = "form" | "summary" | "payment" | "confirmed";
+
+interface Confirmation {
+  codigo: string;
+  correoEnviado: boolean;
+}
 
 const EMPTY_FORM: FormValues = { name: "", email: "", phone: "" };
 
@@ -17,6 +22,7 @@ export default function BookingPage() {
   const [formValues, setFormValues] = useState<FormValues>(EMPTY_FORM);
   const [paymentMethod, setPaymentMethod] = useState<PayMethod>("visa");
   const [loading, setLoading] = useState(false);
+  const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("booking");
@@ -41,7 +47,12 @@ export default function BookingPage() {
       cliente_email: formValues.email,
       cliente_telefono: formValues.phone,
     }, {
-      onSuccess: () => {
+      onSuccess: (page) => {
+        const { flash } = page.props as unknown as PageProps;
+        setConfirmation({
+          codigo: flash?.reserva_codigo ?? "",
+          correoEnviado: Boolean(flash?.reserva_correo_enviado),
+        });
         sessionStorage.removeItem("booking");
         setStep("confirmed");
       },
@@ -99,6 +110,8 @@ export default function BookingPage() {
     <ConfirmationStep
       booking={booking}
       formValues={formValues}
+      codigo={confirmation?.codigo ?? ""}
+      correoEnviado={confirmation?.correoEnviado ?? false}
       onReset={handleReset}
     />
   );

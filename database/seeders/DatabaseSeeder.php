@@ -15,12 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // email_verified_at is outside the model's #[Fillable] list, so forceFill it.
+        User::firstOrNew(['email' => 'admin@futcanchas.com'])
+            ->forceFill([
+                'name' => 'Administrador',
+                'password' => 'admin123',
+                'email_verified_at' => now(),
+            ])
+            ->save();
 
         $this->call(CanchaSeeder::class);
         $this->call(ReservaSeeder::class);
