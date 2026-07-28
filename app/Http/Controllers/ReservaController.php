@@ -60,7 +60,7 @@ class ReservaController extends Controller
     private function enviarConfirmacion(Reserva $reserva): bool
     {
         try {
-            Mail::to($reserva->cliente_email)->send(
+            Mail::to($reserva->cliente_email)->queue(
                 new ReservaConfirmada($reserva->load('cancha'))
             );
 
