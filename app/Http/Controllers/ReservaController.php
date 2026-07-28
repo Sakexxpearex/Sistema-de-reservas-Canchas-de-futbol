@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReservaRequest;
+use App\Mail\ReservaConfirmada;
 use App\Models\Reserva;
 use App\Services\CanchaService;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class ReservaController extends Controller
 {
@@ -41,8 +45,34 @@ class ReservaController extends Controller
             'estado' => 'confirmada', // pago simulado se considera exitoso al instante
         ]);
 
+        $correoEnviado = $this->enviarConfirmacion($reserva);
+
         return back()->with([
             'reserva_codigo' => $reserva->codigo,
+            'reserva_correo_enviado' => $correoEnviado,
         ]);
+    }
+
+    /**
+     * La reserva ya está pagada y guardada, así que un fallo de SMTP no debe
+     * romper la respuesta: se registra y el usuario igual ve su código.
+     */
+    private function enviarConfirmacion(Reserva $reserva): bool
+    {
+        try {
+            Mail::to($reserva->cliente_email)->send(
+                new ReservaConfirmada($reserva->load('cancha'))
+            );
+
+            return true;
+        } catch (Throwable $e) {
+            Log::error('No se pudo enviar el correo de confirmación de la reserva.', [
+                'reserva' => $reserva->codigo,
+                'email' => $reserva->cliente_email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 }

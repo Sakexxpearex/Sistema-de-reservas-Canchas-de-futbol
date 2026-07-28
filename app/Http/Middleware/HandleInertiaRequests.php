@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
 
             'flash' => [
                 'reserva_codigo' => fn () => $request->session()->get('reserva_codigo'),
+                'reserva_correo_enviado' => fn () => $request->session()->get('reserva_correo_enviado'),
             ],
         ];
     }
