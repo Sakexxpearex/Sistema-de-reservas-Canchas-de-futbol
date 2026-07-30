@@ -58,6 +58,7 @@ export interface Reservation {
   id: string;
   court: string;
   date: string;
+  rawDate?: string;
   time: string;
   customer: string;
   email: string;
