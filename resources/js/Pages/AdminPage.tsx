@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { router } from "@inertiajs/react";
 import { AdminHeader } from "@/Components/AdminPage/AdminHeader";
 import { StatsGrid } from "@/Components/AdminPage/StatsGrid";
 import { FiltersBar } from "@/Components/AdminPage/FiltersBar";
@@ -7,8 +8,31 @@ import { fmtPrice, fmtDate } from "@/data/courts";
 import { ReservationTable } from "@/Components/AdminPage/ReservationTable";
 import { ReservationCards } from "@/Components/AdminPage/ReservationCards";
 
+interface PaginatedReservations {
+  data: Reservation[];
+  current_page: number;
+  last_page: number;
+  total: number;
+  from: number;
+  to: number;
+}
+
+interface ServerStats {
+  todayCount: number;
+  pendingCount: number;
+  confirmedCount: number;
+  confirmedRevenue: number;
+}
+
 interface AdminPageProps {
-  reservas: Reservation[];
+  reservas: PaginatedReservations;
+  serverStats: ServerStats;
+  filters: {
+    search?: string;
+    dateFilter?: string;
+    courtFilter?: string;
+    statusFilter?: ReservationStatus | "all";
+  };
 }
 
 function parseISODate(iso: string): Date {
@@ -16,51 +40,40 @@ function parseISODate(iso: string): Date {
   return new Date(y, m - 1, d);
 }
 
-function formatReservas(reservas: Reservation[]): Reservation[] {
-  return (reservas ?? []).map(r => ({ ...r, date: fmtDate(parseISODate(r.date)) }));
-}
-
-export default function AdminPage({ reservas }: AdminPageProps) {
-  const [reservations, setReservations] = useState<Reservation[]>(() => formatReservas(reservas));
+export default function AdminPage({ reservas, serverStats, filters }: AdminPageProps) {
+  const [search, setSearch] = useState(filters.search ?? "");
+  const [dateFilter, setDateFilter] = useState(filters.dateFilter ?? "");
+  const [courtFilter, setCourtFilter] = useState(filters.courtFilter ?? "Todas");
+  const [statusFilter, setStatusFilter] = useState<ReservationStatus | "all">(filters.statusFilter ?? "all");
+  const [currentPage, setCurrentPage] = useState(reservas.current_page);
 
   useEffect(() => {
-    setReservations(formatReservas(reservas));
-  }, [reservas]);
-  const [search, setSearch] = useState("");
-  const [courtFilter, setCourtFilter] = useState("Todas");
-  const [statusFilter, setStatusFilter] = useState<ReservationStatus | "all">("all");
-  const [currentPage, setCurrentPage] = useState(1);
+    const t = setTimeout(() => {
+      router.get(window.location.pathname, {
+        search, dateFilter, courtFilter, statusFilter, page: currentPage
+      }, { preserveState: true, preserveScroll: true });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search, dateFilter, courtFilter, statusFilter, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, courtFilter, statusFilter]);
+  }, [search, dateFilter, courtFilter, statusFilter]);
 
-  const filtered = useMemo(() => reservations.filter(r => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || [r.customer, r.email, r.court, r.id].some(f => f.toLowerCase().includes(q));
-    const matchCourt  = courtFilter === "Todas" || r.court === courtFilter;
-    const matchStatus = statusFilter === "all"  || r.status === statusFilter;
-    return matchSearch && matchCourt && matchStatus;
-  }), [reservations, search, courtFilter, statusFilter]);
+  const rows = reservas.data.map(r => ({
+    ...r,
+    rawDate: r.date,
+    date: fmtDate(parseISODate(r.date))
+  }));
 
-  const paginated = useMemo(() => {
-    const start = (currentPage - 1) * 10;
-    return filtered.slice(start, start + 10);
-  }, [filtered, currentPage]);
+  const stats = {
+    todayCount: serverStats.todayCount,
+    confirmedRevenue: fmtPrice(serverStats.confirmedRevenue),
+    pendingCount: serverStats.pendingCount,
+    confirmedCount: serverStats.confirmedCount,
+  };
 
-  const totalPages = Math.ceil(filtered.length / 10);
-
-  const stats = useMemo(() => {
-    const confirmed = reservations.filter(r => r.status === "confirmed");
-    const today = fmtDate(new Date());
-    return {
-      todayCount:       reservations.filter(r => r.date === today).length,
-      confirmedRevenue: fmtPrice(confirmed.reduce((s, r) => s + r.price, 0)),
-      pendingCount:     reservations.filter(r => r.status === "pending").length,
-      confirmedCount:   confirmed.length,
-    };
-  }, [reservations]);
-
+  const totalPages = reservas.last_page;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -77,23 +90,25 @@ export default function AdminPage({ reservas }: AdminPageProps) {
         <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
           <FiltersBar
             search={search}
+            dateFilter={dateFilter}
             courtFilter={courtFilter}
             statusFilter={statusFilter}
             onSearch={setSearch}
+            onDate={setDateFilter}
             onCourt={setCourtFilter}
             onStatus={setStatusFilter}
           />
 
           <div className="hidden lg:block">
-            <ReservationTable rows={paginated} />
+            <ReservationTable rows={rows} />
           </div>
           <div className="lg:hidden">
-            <ReservationCards rows={paginated} />
+            <ReservationCards rows={rows} />
           </div>
 
           <div className="px-5 py-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-[#94A3B8]">
-              Mostrando {filtered.length === 0 ? 0 : (currentPage - 1) * 10 + 1} a {Math.min(currentPage * 10, filtered.length)} de {filtered.length} reservas
+              Mostrando {reservas.total === 0 ? 0 : reservas.from} a {reservas.to} de {reservas.total} reservas
             </p>
             {totalPages > 1 && (
               <div className="flex items-center gap-2">
