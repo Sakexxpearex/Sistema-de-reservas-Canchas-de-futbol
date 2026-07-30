@@ -31,7 +31,7 @@ Route::post('/reservas', [ReservaController::class, 'store'])->name('reservas.st
 
 //Admin
 Route::middleware('auth')->group(function () {
-    Route::get('/admin/reservas/{fecha?}', [AdminController::class, 'reservas'])->name('admin.reservas');
+    Route::get('/admin/reservas', [AdminController::class, 'reservas'])->name('admin.reservas');
 });
 
 // Este proyecto no usa el panel genérico de Breeze: el destino tras autenticarse
