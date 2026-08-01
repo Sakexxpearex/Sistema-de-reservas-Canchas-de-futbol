@@ -26,7 +26,7 @@ export function Navbar({ onBack, backLabel }: NavbarProps) {
               <span className="text-sm">⚽</span>
             </div>
             <span className="font-extrabold text-[#0F172A] text-lg tracking-tight">
-              Cancha<span className="text-[#16A34A]">Ya</span>
+              Hay<span className="text-[#16A34A]">Cancha</span>
             </span>
           </div>
         </div>
