@@ -6,7 +6,7 @@ export function LoginBrand() {
             <span className="text-xl">⚽</span>
           </div>
           <span className="font-extrabold text-[#0F172A] text-2xl tracking-tight">
-            Cancha<span className="text-[#16A34A]">Ya</span>
+            Hay<span className="text-[#16A34A]">Cancha</span>
           </span>
         </div>
         <p className="text-[#64748B] text-sm">Panel de administración</p>
