@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Pago;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreReservaRequest extends FormRequest
 {
@@ -20,6 +22,7 @@ class StoreReservaRequest extends FormRequest
             'cliente_nombre' => ['required', 'string', 'max:255'],
             'cliente_email' => ['required', 'email'],
             'cliente_telefono' => ['required', 'string', 'max:20'],
+            'metodo_pago' => ['required', Rule::in(Pago::metodos())],
         ];
     }
 
@@ -28,6 +31,7 @@ class StoreReservaRequest extends FormRequest
         return [
             'cancha_id.exists' => 'La cancha seleccionada no existe.',
             'hora_inicio.date_format' => 'El horario debe tener formato HH:MM.',
+            'metodo_pago.in' => 'El método de pago seleccionado no es válido.',
         ];
     }
 }

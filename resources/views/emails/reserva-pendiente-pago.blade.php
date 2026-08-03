@@ -5,13 +5,18 @@
     );
     $horario = substr($reserva->hora_inicio, 0, 5).' - '.substr($reserva->hora_fin, 0, 5);
     $precio = '$'.number_format((float) $cancha->precio_hora, 0, ',', '.');
+    $esEfectivo = $metodo === 'efectivo';
+    $metodoTexto = $esEfectivo ? 'Efectivo en el recinto' : 'Transferencia bancaria';
+    $instrucciones = $esEfectivo
+        ? 'Paga en la recepción del recinto al llegar. Preséntate 15 minutos antes para alcanzar a pagar antes de tu bloque.'
+        : 'Transfiere el total a la cuenta del recinto y envíanos el comprobante indicando tu código de reserva.';
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reserva confirmada</title>
+    <title>Reserva pendiente de pago</title>
 </head>
 <body style="margin:0; padding:0; background-color:#F8FAFC; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F8FAFC; padding:24px 12px;">
@@ -20,18 +25,18 @@
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px; background-color:#ffffff; border:1px solid #E2E8F0; border-radius:16px; overflow:hidden;">
 
                     <tr>
-                        <td style="background-color:#F0FDF4; border-bottom:1px solid #BBF7D0; padding:32px 24px; text-align:center;">
+                        <td style="background-color:#FFFBEB; border-bottom:1px solid #FDE68A; padding:32px 24px; text-align:center;">
                             <p style="margin:0 0 12px; font-size:22px; font-weight:800; color:#0F172A;">
                                 ⚽ Hay<span style="color:#16A34A;">Cancha</span>
                             </p>
-                            <h1 style="margin:0 0 8px; font-size:24px; font-weight:800; color:#0F172A;">¡Reserva confirmada!</h1>
+                            <h1 style="margin:0 0 8px; font-size:24px; font-weight:800; color:#0F172A;">Reserva pendiente de pago</h1>
                             <p style="margin:0; font-size:14px; color:#64748B;">
-                                Hola {{ $reserva->cliente_nombre }}, tu cancha ya está reservada.
+                                Hola {{ $reserva->cliente_nombre }}, apartamos tu horario. Se confirmará cuando registremos tu pago.
                             </p>
 
-                            <div style="margin-top:20px; display:inline-block; background-color:#ffffff; border:1px solid #BBF7D0; border-radius:12px; padding:12px 24px;">
+                            <div style="margin-top:20px; display:inline-block; background-color:#ffffff; border:1px solid #FDE68A; border-radius:12px; padding:12px 24px;">
                                 <p style="margin:0 0 2px; font-size:10px; font-weight:800; color:#64748B; text-transform:uppercase; letter-spacing:1.5px;">Código de reserva</p>
-                                <p style="margin:0; font-size:20px; font-weight:800; color:#16A34A; letter-spacing:2px;">{{ $reserva->codigo }}</p>
+                                <p style="margin:0; font-size:20px; font-weight:800; color:#B45309; letter-spacing:2px;">{{ $reserva->codigo }}</p>
                             </div>
                         </td>
                     </tr>
@@ -46,7 +51,8 @@
                                     'Ubicación' => $cancha->location,
                                     'Fecha' => $fechaLarga,
                                     'Horario' => $horario,
-                                    'Total pagado' => $precio,
+                                    'Método de pago' => $metodoTexto,
+                                    'Total a pagar' => $precio,
                                 ] as $etiqueta => $valor)
                                     <tr>
                                         <td style="padding:12px 0; border-bottom:1px solid #F1F5F9; color:#64748B;">{{ $etiqueta }}</td>
@@ -73,7 +79,8 @@
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px; background-color:#FFFBEB; border:1px solid #FDE68A; border-radius:12px;">
                                 <tr>
                                     <td style="padding:16px; text-align:center; font-size:12px; font-weight:600; color:#92400E;">
-                                        Preséntate 10 minutos antes · Cancela hasta 2 horas antes sin costo
+                                        {{ $instrucciones }}<br>
+                                        Cancela hasta 2 horas antes sin costo.
                                     </td>
                                 </tr>
                             </table>

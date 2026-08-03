@@ -41,6 +41,7 @@ class ReservaConfirmacionCorreoTest extends TestCase
             'cliente_nombre' => 'Bastián Pérez',
             'cliente_email' => 'cliente@example.com',
             'cliente_telefono' => '+56911112222',
+            'metodo_pago' => 'visa',
         ];
     }
 
@@ -56,7 +57,7 @@ class ReservaConfirmacionCorreoTest extends TestCase
 
         $reserva = Reserva::firstOrFail();
 
-        Mail::assertSent(ReservaConfirmada::class, function (ReservaConfirmada $mail) use ($reserva) {
+        Mail::assertQueued(ReservaConfirmada::class, function (ReservaConfirmada $mail) use ($reserva) {
             return $mail->hasTo('cliente@example.com')
                 && $mail->reserva->codigo === $reserva->codigo;
         });

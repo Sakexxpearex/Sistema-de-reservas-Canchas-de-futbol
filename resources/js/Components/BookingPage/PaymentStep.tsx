@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { CreditCard, Lock, Shield } from "lucide-react";
+import { Banknote, CreditCard, Landmark, Lock, Shield } from "lucide-react";
 import { BookingState, PayMethod } from "@/types";
 import { Navbar } from "../HomePage/Navbar";
 import { StepProgress } from "./StepProgress";
 import { fmtDate, fmtPrice } from "@/data/courts";
+import { BANK_DETAILS, PAY_METHODS, isCardMethod } from "@/data/payments";
 
 
 interface PaymentStepProps {
@@ -16,12 +17,6 @@ interface PaymentStepProps {
   onBack: () => void;
 }
 
-const PAY_METHODS: { id: PayMethod; label: string; emoji: string }[] = [
-  { id: "visa", label: "Visa", emoji: "💳" },
-  { id: "mastercard", label: "Mastercard", emoji: "💳" },
-  { id: "debit", label: "Débito", emoji: "🏦" },
-];
-
 const INPUT_CLS =
   "w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] text-sm placeholder:text-[#CBD5E1] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-all font-medium";
 
@@ -30,6 +25,9 @@ export function PaymentStep({ booking, paymentMethod, onPaymentMethodChange, loa
   const [cardName, setCardName] = useState("Carlos García");
   const [expiry, setExpiry] = useState("12/28");
   const [cvv, setCvv] = useState("123");
+
+  const conTarjeta = isCardMethod(paymentMethod);
+  const total = booking.slot?.price ?? 0;
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -51,8 +49,12 @@ export function PaymentStep({ booking, paymentMethod, onPaymentMethodChange, loa
                 <Lock size={17} className="text-[#16A34A]" />
               </div>
               <div>
-                <h2 className="text-xl font-extrabold text-[#0F172A]">Pago seguro</h2>
-                <p className="text-[#64748B] text-xs">Simulación de pasarela de pago · Sin cobro real</p>
+                <h2 className="text-xl font-extrabold text-[#0F172A]">{conTarjeta ? "Pago seguro" : "Método de pago"}</h2>
+                <p className="text-[#64748B] text-xs">
+                  {conTarjeta
+                    ? "Simulación de pasarela de pago · Sin cobro real"
+                    : "Pagas al confirmar en el recinto · Sin cobro en línea"}
+                </p>
               </div>
             </div>
 
@@ -62,7 +64,7 @@ export function PaymentStep({ booking, paymentMethod, onPaymentMethodChange, loa
                   <p className="text-xs font-semibold text-[#0F172A]">{booking.court?.name}</p>
                   <p className="text-xs text-[#64748B]">{fmtDate(booking.date)} · {booking.slot?.time}</p>
                 </div>
-                <span className="font-black text-[#0F172A] text-xl">{fmtPrice(booking.slot?.price ?? 0)}</span>
+                <span className="font-black text-[#0F172A] text-xl">{fmtPrice(total)}</span>
               </div>
 
               <div>
@@ -82,29 +84,67 @@ export function PaymentStep({ booking, paymentMethod, onPaymentMethodChange, loa
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Número de tarjeta</label>
-                <div className="relative">
-                  <CreditCard size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
-                  <input type="text" value={cardNumber} onChange={e => setCardNumber(e.target.value)} className={INPUT_CLS + " pl-10"} maxLength={19} />
-                </div>
-              </div>
+              {conTarjeta && (
+                <>
+                  <div>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Número de tarjeta</label>
+                    <div className="relative">
+                      <CreditCard size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
+                      <input type="text" value={cardNumber} onChange={e => setCardNumber(e.target.value)} className={INPUT_CLS + " pl-10"} maxLength={19} />
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Nombre en la tarjeta</label>
-                <input type="text" value={cardName} onChange={e => setCardName(e.target.value)} className={INPUT_CLS} />
-              </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Nombre en la tarjeta</label>
+                    <input type="text" value={cardName} onChange={e => setCardName(e.target.value)} className={INPUT_CLS} />
+                  </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Vencimiento</label>
-                  <input type="text" value={expiry} onChange={e => setExpiry(e.target.value)} placeholder="MM/AA" className={INPUT_CLS} maxLength={5} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Vencimiento</label>
+                      <input type="text" value={expiry} onChange={e => setExpiry(e.target.value)} placeholder="MM/AA" className={INPUT_CLS} maxLength={5} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-[#0F172A] mb-1.5">CVV</label>
+                      <input type="text" value={cvv} onChange={e => setCvv(e.target.value)} placeholder="123" className={INPUT_CLS} maxLength={4} />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {paymentMethod === "efectivo" && (
+                <div className="bg-[#FFFBEB] rounded-xl border border-[#FDE68A] p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-[#92400E] font-bold text-sm">
+                    <Banknote size={15} />
+                    Pago en efectivo
+                  </div>
+                  <p className="text-[#92400E] text-xs leading-relaxed">
+                    Apartamos tu horario de inmediato, pero la reserva queda <strong>pendiente</strong> hasta que pagues
+                    en la recepción del recinto. Llega 15 minutos antes de tu bloque.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-bold text-[#0F172A] mb-1.5">CVV</label>
-                  <input type="text" value={cvv} onChange={e => setCvv(e.target.value)} placeholder="123" className={INPUT_CLS} maxLength={4} />
+              )}
+
+              {paymentMethod === "transferencia" && (
+                <div className="bg-[#FFFBEB] rounded-xl border border-[#FDE68A] p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-[#92400E] font-bold text-sm">
+                    <Landmark size={15} />
+                    Datos para la transferencia
+                  </div>
+                  <div className="bg-white/70 rounded-lg border border-[#FDE68A] divide-y divide-[#FDE68A]/60">
+                    {BANK_DETAILS.map(({ label, value }) => (
+                      <div key={label} className="flex items-center justify-between px-3 py-2">
+                        <span className="text-[#92400E] text-xs">{label}</span>
+                        <span className="text-[#0F172A] text-xs font-semibold">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[#92400E] text-xs leading-relaxed">
+                    Apartamos tu horario de inmediato. La reserva queda <strong>pendiente</strong> hasta que enviemos la
+                    confirmación del pago: transfiere e indícanos tu código de reserva.
+                  </p>
                 </div>
-              </div>
+              )}
 
               <motion.button
                 whileHover={!loading ? { scale: 1.02 } : {}}
@@ -116,16 +156,22 @@ export function PaymentStep({ booking, paymentMethod, onPaymentMethodChange, loa
                 {loading ? (
                   <>
                     <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }} className="w-5 h-5 border-[3px] border-white/30 border-t-white rounded-full" />
-                    Procesando pago...
+                    {conTarjeta ? "Procesando pago..." : "Reservando horario..."}
                   </>
+                ) : conTarjeta ? (
+                  <><Lock size={15} />Pagar {fmtPrice(total)}</>
                 ) : (
-                  <><Lock size={15} />Pagar {fmtPrice(booking.slot?.price ?? 0)}</>
+                  <>Reservar y pagar después</>
                 )}
               </motion.button>
 
               <div className="flex items-center justify-center gap-2">
                 <Shield size={11} className="text-[#94A3B8]" />
-                <p className="text-[11px] text-[#94A3B8]">Simulación · No se realizará ningún cobro real</p>
+                <p className="text-[11px] text-[#94A3B8]">
+                  {conTarjeta
+                    ? "Simulación · No se realizará ningún cobro real"
+                    : "No se realizará ningún cobro en línea"}
+                </p>
               </div>
             </div>
           </motion.div>

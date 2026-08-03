@@ -14,11 +14,16 @@ export type PageProps<
     flash: {
         reserva_codigo: string | null;
         reserva_correo_enviado: boolean | null;
+        reserva_estado: ReservaEstado | null;
+        reserva_metodo_pago: PayMethod | null;
     };
 };
 
 export type Step = "browse" | "form" | "summary" | "payment" | "confirmed";
-export type PayMethod = "visa" | "mastercard" | "debit";
+export type CardMethod = "visa" | "mastercard" | "debit";
+export type OffsiteMethod = "efectivo" | "transferencia";
+export type PayMethod = CardMethod | OffsiteMethod;
+export type ReservaEstado = "confirmada" | "pendiente" | "cancelada";
 export type ReservationStatus = "confirmed" | "pending" | "cancelled";
 
 export interface TimeSlot {

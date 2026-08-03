@@ -20,11 +20,19 @@ class CanchaService
             ->map(fn ($cancha) => $this->formatearCancha($cancha, $fecha));
     }
 
+    /**
+     * Una reserva pendiente (efectivo o transferencia) también ocupa el bloque:
+     * solo las canceladas lo liberan.
+     */
     public function slotDisponible(int $canchaId, string $fecha, string $horaInicio): bool
     {
+        // Según el driver, `hora_inicio` se guarda como "20:00" o como
+        // "20:00:00", así que se comparan ambas formas.
+        $hora = substr($horaInicio, 0, 5);
+
         return ! Reserva::where('cancha_id', $canchaId)
             ->whereDate('fecha', $fecha)
-            ->where('hora_inicio', $horaInicio . ':00')
+            ->whereIn('hora_inicio', [$hora, $hora . ':00'])
             ->where('estado', '!=', 'cancelada')
             ->exists();
     }
