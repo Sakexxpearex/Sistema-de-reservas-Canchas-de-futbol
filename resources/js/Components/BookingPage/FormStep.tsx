@@ -1,9 +1,19 @@
+import { useState } from "react";
 import { motion } from "motion/react";
 import { User, Mail, Phone, ChevronRight } from "lucide-react";
 import { BookingState, FormValues } from "@/types";
 import { Navbar } from "../HomePage/Navbar";
 import { StepProgress } from "./StepProgress";
 import { fmtDate, fmtPrice } from "@/data/courts";
+import {
+  LIMITES,
+  erroresFormulario,
+  limpiarEmail,
+  limpiarNombre,
+  telefonoADigitos,
+  telefonoGuardado,
+  telefonoVisible,
+} from "@/lib/validation";
 
 interface FormStepProps {
   booking: BookingState;
@@ -14,10 +24,31 @@ interface FormStepProps {
 }
 
 const INPUT_CLS =
-  "w-full px-4 py-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] text-[#0F172A] text-sm placeholder:text-[#CBD5E1] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-all";
+  "w-full px-4 py-3 rounded-xl border bg-[#F8FAFC] text-[#0F172A] text-sm placeholder:text-[#CBD5E1] focus:outline-none focus:ring-2 transition-all";
+const INPUT_OK = "border-[#E2E8F0] focus:border-[#16A34A] focus:ring-[#16A34A]/20";
+const INPUT_ERROR = "border-[#FCA5A5] focus:border-[#DC2626] focus:ring-[#DC2626]/20";
+
+type Campo = keyof FormValues;
 
 export function FormStep({ booking, formValues, onChange, onSubmit, onBack }: FormStepProps) {
-  const isValid = formValues.name.trim() && formValues.email.trim() && formValues.phone.trim();
+  const [tocados, setTocados] = useState<Record<Campo, boolean>>({ name: false, email: false, phone: false });
+
+  const errores = erroresFormulario(formValues);
+  const isValid = Object.values(errores).every(e => e === null);
+  const digitos = telefonoADigitos(formValues.phone);
+
+  const marcarTocado = (campo: Campo) => setTocados(prev => ({ ...prev, [campo]: true }));
+
+  /** El error se muestra recién cuando el campo se deja atrás, no mientras se escribe. */
+  const errorVisible = (campo: Campo) => (tocados[campo] ? errores[campo] : null);
+
+  const claseInput = (campo: Campo) => `${INPUT_CLS} pl-10 ${errorVisible(campo) ? INPUT_ERROR : INPUT_OK}`;
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setTocados({ name: true, email: true, phone: true });
+    if (isValid) onSubmit(e);
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -52,29 +83,71 @@ export function FormStep({ booking, formValues, onChange, onSubmit, onBack }: Fo
               </div>
             )}
 
-            <form onSubmit={onSubmit} className="px-6 py-5 space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="px-6 py-5 space-y-4">
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Nombre completo</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1.5" htmlFor="cliente-nombre">Nombre completo</label>
                 <div className="relative">
                   <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
-                  <input type="text" placeholder="Carlos García" value={formValues.name} onChange={e => onChange({ ...formValues, name: e.target.value })} className={INPUT_CLS + " pl-10"} required />
+                  <input
+                    id="cliente-nombre"
+                    type="text"
+                    placeholder="Carlos García"
+                    value={formValues.name}
+                    onChange={e => onChange({ ...formValues, name: limpiarNombre(e.target.value) })}
+                    onBlur={() => marcarTocado("name")}
+                    maxLength={LIMITES.nombre.max}
+                    autoComplete="name"
+                    aria-invalid={Boolean(errorVisible("name"))}
+                    className={claseInput("name")}
+                  />
                 </div>
+                <FieldFooter error={errorVisible("name")} contador={`${formValues.name.length}/${LIMITES.nombre.max}`} />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Correo electrónico</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1.5" htmlFor="cliente-email">Correo electrónico</label>
                 <div className="relative">
                   <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
-                  <input type="email" placeholder="carlos@ejemplo.com" value={formValues.email} onChange={e => onChange({ ...formValues, email: e.target.value })} className={INPUT_CLS + " pl-10"} required />
+                  <input
+                    id="cliente-email"
+                    type="email"
+                    inputMode="email"
+                    placeholder="carlos@ejemplo.com"
+                    value={formValues.email}
+                    onChange={e => onChange({ ...formValues, email: limpiarEmail(e.target.value) })}
+                    onBlur={() => marcarTocado("email")}
+                    maxLength={LIMITES.email.max}
+                    autoComplete="email"
+                    aria-invalid={Boolean(errorVisible("email"))}
+                    className={claseInput("email")}
+                  />
                 </div>
+                <FieldFooter error={errorVisible("email")} contador={`${formValues.email.length}/${LIMITES.email.max}`} />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-1.5">Teléfono</label>
+                <label className="block text-sm font-bold text-[#0F172A] mb-1.5" htmlFor="cliente-telefono">Teléfono</label>
                 <div className="relative">
                   <Phone size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#CBD5E1]" />
-                  <input type="tel" placeholder="+56 9 1234 5678" value={formValues.phone} onChange={e => onChange({ ...formValues, phone: e.target.value })} className={INPUT_CLS + " pl-10"} required />
+                  <span className="absolute left-9 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#64748B] pointer-events-none">+56</span>
+                  <input
+                    id="cliente-telefono"
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="9 1234 5678"
+                    value={telefonoVisible(digitos)}
+                    onChange={e => onChange({ ...formValues, phone: telefonoGuardado(telefonoADigitos(e.target.value)) })}
+                    onBlur={() => marcarTocado("phone")}
+                    maxLength={LIMITES.telefonoDigitos + 2} // los dos espacios del formato
+                    autoComplete="tel-national"
+                    aria-invalid={Boolean(errorVisible("phone"))}
+                    className={`${claseInput("phone")} pl-[4.25rem]`}
+                  />
                 </div>
+                <FieldFooter
+                  error={errorVisible("phone")}
+                  contador={`${digitos.length}/${LIMITES.telefonoDigitos}`}
+                />
               </div>
 
               <motion.button
@@ -91,6 +164,15 @@ export function FormStep({ booking, formValues, onChange, onSubmit, onBack }: Fo
           </motion.div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function FieldFooter({ error, contador }: { error: string | null; contador: string }) {
+  return (
+    <div className="flex items-start justify-between gap-3 mt-1.5 min-h-[16px]">
+      <p className="text-[11px] font-semibold text-[#DC2626]">{error}</p>
+      <span className="text-[11px] text-[#94A3B8] flex-shrink-0 tabular-nums">{contador}</span>
     </div>
   );
 }
